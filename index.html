@@ -1,0 +1,883 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Sponsorship Aresta</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      color: #1e293b;
+      background: #f1f5f9;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    header {
+      background: #0f766e;
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px #0000000a;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    input[type="search"] {
+      flex: 1;
+      min-width: 220px;
+      padding: 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button, .button-link {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .primary {
+      background: #0f766e;
+      color: white;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .edit {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .delete {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1250px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: #fafafa;
+    }
+
+    .photo {
+      width: 100px;
+      height: 85px;
+      object-fit: contain;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      background: #f8fafc;
+      display: block;
+    }
+
+    .no-photo {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 18px;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px #0000000a;
+    }
+
+    .stat-card p {
+      color: #64748b;
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+
+    .stat-card strong {
+      font-size: 23px;
+      color: #0f766e;
+      overflow-wrap: anywhere;
+    }
+
+    #status {
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .empty {
+      text-align: center;
+      color: #64748b;
+      padding: 35px;
+    }
+
+    .note {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #64748b;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 12px;
+      }
+
+      header {
+        padding: 18px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: white;
+      }
+
+      header {
+        background: white;
+        color: black;
+        padding: 10px 0;
+      }
+
+      .toolbar, .actions, .note {
+        display: none !important;
+      }
+
+      .panel, .stat-card {
+        box-shadow: none;
+      }
+
+      .table-wrapper {
+        overflow: visible;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      th, td {
+        font-size: 9px;
+        padding: 5px;
+      }
+
+      .photo {
+        width: 55px;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Database Sponsorship Aresta</h1>
+      <p>Pengelolaan data sponsor, logo perusahaan, dan bukti transfer.</p>
+    </header>
+
+    <section class="stats">
+      <div class="stat-card">
+        <p>Total Sponsor</p>
+        <strong id="totalSponsor">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <p>Total Dana Sponsorship</p>
+        <strong id="totalDana">Rp0</strong>
+      </div>
+
+      <div class="stat-card">
+        <p>Data dengan Dua Foto</p>
+        <strong id="totalFotoLengkap">0</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Cari nama sponsor, kontak, paket, atau nomor telepon..."
+          aria-label="Cari data sponsor"
+        >
+
+        <button class="primary" id="refreshBtn">
+          Muat Ulang
+        </button>
+
+        <button class="secondary" id="jsonBtn">
+          Ekspor JSON
+        </button>
+
+        <button class="secondary" id="csvBtn">
+          Ekspor CSV
+        </button>
+
+        <button class="secondary" id="printBtn">
+          Cetak Database
+        </button>
+      </div>
+
+      <div id="status" role="status" aria-live="polite">
+        Memuat database...
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Nama Sponsor</th>
+              <th>Penanggung Jawab</th>
+              <th>Telepon</th>
+              <th>Email</th>
+              <th>Paket</th>
+              <th>Nominal</th>
+              <th>Logo Sponsor</th>
+              <th>Bukti Transfer</th>
+              <th>Catatan</th>
+              <th>Tanggal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody id="databaseBody">
+            <tr>
+              <td colspan="12" class="empty">
+                Memuat data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Catatan: database ini membaca penyimpanan lokal browser.
+        Data dan gambar tidak otomatis tersinkron dengan perangkat lain.
+        Lakukan ekspor secara berkala untuk membuat salinan data.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // Harus sama dengan konfigurasi pada Formulir Sponsorship Aresta.
+    const STORAGE_KEY = "aresta_sponsorship_database_v1";
+    const DB_NAME = "ArestaSponsorshipImages";
+    const STORE_NAME = "gambar";
+
+    const tbody = document.getElementById("databaseBody");
+    const searchInput = document.getElementById("searchInput");
+    const statusEl = document.getElementById("status");
+
+    let allRecords = [];
+    let imageUrls = [];
+
+    function rupiah(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) return String(value);
+
+      return date.toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("Browser tidak mendukung IndexedDB."));
+          return;
+        }
+
+        const request = indexedDB.open(DB_NAME, 1);
+
+        request.onupgradeneeded = function () {
+          const db = request.result;
+
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, {
+              keyPath: "id"
+            });
+          }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // Membaca foto berdasarkan gambarId atau buktiTransferId.
+    async function getImage(imageId) {
+      if (!imageId) return null;
+
+      const db = await openDatabase();
+
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(
+          STORE_NAME,
+          "readonly"
+        );
+
+        const request = transaction
+          .objectStore(STORE_NAME)
+          .get(imageId);
+
+        request.onsuccess = function () {
+          const result = request.result;
+          db.close();
+
+          if (result && result.blob instanceof Blob) {
+            resolve(URL.createObjectURL(result.blob));
+          } else {
+            resolve(null);
+          }
+        };
+
+        request.onerror = function () {
+          const error = request.error;
+          db.close();
+          reject(error);
+        };
+      });
+    }
+
+    async function deleteImage(imageId) {
+      if (!imageId) return;
+
+      const db = await openDatabase();
+
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+        transaction.objectStore(STORE_NAME).delete(imageId);
+
+        transaction.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+
+        transaction.onerror = () => {
+          const error = transaction.error;
+          db.close();
+          reject(error);
+        };
+      });
+    }
+
+    function releaseImageUrls() {
+      imageUrls.forEach(url => URL.revokeObjectURL(url));
+      imageUrls = [];
+    }
+
+    function addTextCell(row, value) {
+      const cell = document.createElement("td");
+      cell.textContent =
+        value === null || value === undefined || value === ""
+          ? "-"
+          : String(value);
+
+      row.appendChild(cell);
+      return cell;
+    }
+
+    async function addPhotoCell(row, imageId, altText) {
+      const cell = document.createElement("td");
+
+      if (!imageId) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "no-photo";
+        placeholder.textContent = "Belum tersedia";
+        cell.appendChild(placeholder);
+        row.appendChild(cell);
+        return;
+      }
+
+      try {
+        const url = await getImage(imageId);
+
+        if (url) {
+          imageUrls.push(url);
+
+          const img = document.createElement("img");
+          img.className = "photo";
+          img.src = url;
+          img.alt = altText;
+          img.loading = "lazy";
+
+          cell.appendChild(img);
+        } else {
+          const placeholder = document.createElement("span");
+          placeholder.className = "no-photo";
+          placeholder.textContent = "Foto tidak ditemukan";
+          cell.appendChild(placeholder);
+        }
+      } catch (error) {
+        console.error("Gagal membaca gambar:", error);
+
+        const placeholder = document.createElement("span");
+        placeholder.className = "no-photo";
+        placeholder.textContent = "Gagal memuat foto";
+        cell.appendChild(placeholder);
+      }
+
+      row.appendChild(cell);
+    }
+
+    function getFilteredRecords() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      if (!keyword) return allRecords;
+
+      return allRecords.filter(record => {
+        const searchable = [
+          record.namaSponsor,
+          record.namaKontak,
+          record.noTelepon,
+          record.email,
+          record.paketSponsor,
+          record.nominal,
+          record.catatan
+        ].join(" ").toLowerCase();
+
+        return searchable.includes(keyword);
+      });
+    }
+
+    async function renderTable() {
+      releaseImageUrls();
+
+      const records = getFilteredRecords();
+
+      tbody.replaceChildren();
+
+      if (records.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 12;
+        cell.className = "empty";
+        cell.textContent = allRecords.length
+          ? "Tidak ada data yang sesuai dengan pencarian."
+          : "Belum ada data sponsorship. Silakan isi formulir terlebih dahulu.";
+
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+      }
+
+      for (let index = 0; index < records.length; index++) {
+        const record = records[index];
+        const row = document.createElement("tr");
+
+        addTextCell(row, index + 1);
+        addTextCell(row, record.namaSponsor);
+        addTextCell(row, record.namaKontak);
+        addTextCell(row, record.noTelepon);
+        addTextCell(row, record.email);
+        addTextCell(row, record.paketSponsor);
+        addTextCell(row, rupiah(record.nominal));
+
+        await addPhotoCell(
+          row,
+          record.gambarId,
+          "Logo sponsor: " + (record.namaSponsor || "")
+        );
+
+        await addPhotoCell(
+          row,
+          record.buktiTransferId,
+          "Bukti transfer: " + (record.namaSponsor || "")
+        );
+
+        addTextCell(row, record.catatan);
+        addTextCell(row, formatDate(record.tanggal));
+
+        const actionCell = document.createElement("td");
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "edit";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => editRecord(record.id));
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete";
+        deleteBtn.textContent = "Hapus";
+        deleteBtn.addEventListener("click", () => deleteRecord(record.id));
+
+        actions.append(editBtn, deleteBtn);
+        actionCell.appendChild(actions);
+        row.appendChild(actionCell);
+
+        tbody.appendChild(row);
+      }
+    }
+
+    function updateStats() {
+      const total = allRecords.length;
+
+      const dana = allRecords.reduce((sum, record) => {
+        return sum + (Number(record.nominal) || 0);
+      }, 0);
+
+      const lengkap = allRecords.filter(record =>
+        record.gambarId && record.buktiTransferId
+      ).length;
+
+      document.getElementById("totalSponsor").textContent = total;
+      document.getElementById("totalDana").textContent = rupiah(dana);
+      document.getElementById("totalFotoLengkap").textContent = lengkap;
+    }
+
+    async function loadDatabase() {
+      statusEl.textContent = "Memuat data...";
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const parsed = saved ? JSON.parse(saved) : [];
+
+        if (!Array.isArray(parsed)) {
+          throw new Error("Format database tidak sesuai.");
+        }
+
+        allRecords = parsed;
+        updateStats();
+        await renderTable();
+
+        statusEl.textContent =
+          "Berhasil memuat " + allRecords.length + " data sponsor.";
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent =
+          "Gagal membaca database: " + error.message;
+      }
+    }
+
+    // Mengedit data teks tanpa mengubah kedua foto.
+    function editRecord(id) {
+      const record = allRecords.find(item => item.id === id);
+
+      if (!record) {
+        alert("Data sponsor tidak ditemukan.");
+        return;
+      }
+
+      const namaSponsor = prompt(
+        "Nama sponsor:",
+        record.namaSponsor || ""
+      );
+      if (namaSponsor === null) return;
+
+      const namaKontak = prompt(
+        "Nama penanggung jawab:",
+        record.namaKontak || ""
+      );
+      if (namaKontak === null) return;
+
+      const noTelepon = prompt(
+        "Nomor telepon:",
+        record.noTelepon || ""
+      );
+      if (noTelepon === null) return;
+
+      const email = prompt(
+        "Email:",
+        record.email || ""
+      );
+      if (email === null) return;
+
+      const paketSponsor = prompt(
+        "Paket sponsorship:",
+        record.paketSponsor || ""
+      );
+      if (paketSponsor === null) return;
+
+      const nominalInput = prompt(
+        "Nominal sponsorship (angka saja):",
+        String(record.nominal ?? 0)
+      );
+      if (nominalInput === null) return;
+
+      const nominal = Number(nominalInput);
+
+      if (!Number.isFinite(nominal) || nominal < 0) {
+        alert("Nominal harus berupa angka nol atau lebih.");
+        return;
+      }
+
+      const catatan = prompt(
+        "Catatan tambahan:",
+        record.catatan || ""
+      );
+      if (catatan === null) return;
+
+      const updated = {
+        ...record,
+        namaSponsor: namaSponsor.trim(),
+        namaKontak: namaKontak.trim(),
+        noTelepon: noTelepon.trim(),
+        email: email.trim(),
+        paketSponsor: paketSponsor.trim(),
+        nominal,
+        catatan: catatan.trim()
+      };
+
+      try {
+        const nextRecords = allRecords.map(item =>
+          item.id === id ? updated : item
+        );
+
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(nextRecords)
+        );
+
+        alert("Data sponsor berhasil diperbarui.");
+        loadDatabase();
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menyimpan perubahan. Penyimpanan browser mungkin penuh.");
+      }
+    }
+
+    async function deleteRecord(id) {
+      const record = allRecords.find(item => item.id === id);
+
+      if (!record) return;
+
+      const confirmed = confirm(
+        'Hapus data sponsor "' +
+        (record.namaSponsor || "") +
+        '" beserta kedua foto? Tindakan ini tidak dapat dibatalkan.'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Hapus record dari localStorage terlebih dahulu.
+        const nextRecords = allRecords.filter(item => item.id !== id);
+
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(nextRecords)
+        );
+
+        allRecords = nextRecords;
+        updateStats();
+        await renderTable();
+
+        // Hapus kedua gambar dari IndexedDB.
+        const imageIds = [
+          record.gambarId,
+          record.buktiTransferId
+        ].filter(Boolean);
+
+        const results = await Promise.allSettled(
+          imageIds.map(imageId => deleteImage(imageId))
+        );
+
+        const failed = results.some(result =>
+          result.status === "rejected"
+        );
+
+        statusEl.textContent = failed
+          ? "Data dihapus, tetapi sebagian gambar mungkin masih tersimpan."
+          : "Data sponsor dan gambar terkait berhasil dihapus.";
+
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menghapus data: " + error.message);
+      }
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function exportJSON() {
+      const content = JSON.stringify(allRecords, null, 2);
+
+      downloadFile(
+        "Database_Sponsorship_Aresta.json",
+        content,
+        "application/json;charset=utf-8"
+      );
+    }
+
+    function csvEscape(value) {
+      let text = String(value ?? "");
+
+      // Mencegah teks yang diawali formula dieksekusi spreadsheet.
+      if (/^[=+\-@\t\r]/.test(text)) {
+        text = "'" + text;
+      }
+
+      return '"' + text.replace(/"/g, '""') + '"';
+    }
+
+    function exportCSV() {
+      const headers = [
+        "ID",
+        "Nama Sponsor",
+        "Penanggung Jawab",
+        "Telepon",
+        "Email",
+        "Paket Sponsorship",
+        "Nominal",
+        "ID Foto Sponsor",
+        "ID Bukti Transfer",
+        "Catatan",
+        "Tanggal"
+      ];
+
+      const rows = allRecords.map(record => [
+        record.id,
+        record.namaSponsor,
+        record.namaKontak,
+        record.noTelepon,
+        record.email,
+        record.paketSponsor,
+        record.nominal,
+        record.gambarId,
+        record.buktiTransferId,
+        record.catatan,
+        record.tanggal
+      ]);
+
+      const csv = [headers, ...rows]
+        .map(row => row.map(csvEscape).join(","))
+        .join("\r\n");
+
+      // BOM membantu Excel membaca UTF-8.
+      downloadFile(
+        "Database_Sponsorship_Aresta.csv",
+        "\uFEFF" + csv,
+        "text/csv;charset=utf-8"
+      );
+    }
+
+    searchInput.addEventListener("input", renderTable);
+
+    document.getElementById("refreshBtn")
+      .addEventListener("click", loadDatabase);
+
+    document.getElementById("jsonBtn")
+      .addEventListener("click", exportJSON);
+
+    document.getElementById("csvBtn")
+      .addEventListener("click", exportCSV);
+
+    document.getElementById("printBtn")
+      .addEventListener("click", () => window.print());
+
+    loadDatabase();
+  </script>
+</body>
+</html>
